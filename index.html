@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>First Frets</title>
+<meta name="theme-color" content="#EDF0E8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111915" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="First Frets">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<style>
+:root{
+  --paper:#EDF0E8; --surface:#F8FAF5; --ink:#1B2620; --muted:#5A685F; --line:#CDD5C7;
+  --brass:#946512; --brass-soft:#EADCB8; --rose:#7A2E28; --wood:#3E241D; --pearl:#EFE8D6;
+  --ok:#2F6B45;
+  --round: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sans: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#111915; --surface:#18221D; --ink:#E3E9DF; --muted:#94A39A; --line:#2B3731;
+    --brass:#D9A847; --brass-soft:#3A3120; --rose:#D07466; --wood:#2E1A15; --pearl:#D9D0BA;
+    --ok:#6FBF8A; color-scheme: dark;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; height:100%}
+body{margin:0; min-height:100%; background:var(--paper); color:var(--ink); font:16px/1.5 var(--sans);
+  padding-top:env(safe-area-inset-top,0px); -webkit-tap-highlight-color:transparent}
+button{font:inherit; color:inherit; cursor:pointer}
+a{color:var(--brass)}
+:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
+main{max-width:680px; margin:0 auto; padding:18px 18px calc(100px + env(safe-area-inset-bottom,0px))}
+.view{display:none}
+.view.on{display:block}
+h1,h2,h3{font-family:var(--round); margin:0; line-height:1.15}
+h1{font-size:32px; font-weight:800; letter-spacing:-.015em}
+h2{font-size:21px; font-weight:700; margin:28px 0 10px}
+h3{font-size:17px; font-weight:700}
+p{margin:0 0 10px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.lede{font-size:15px; color:var(--muted); margin:6px 0 0}
+
+/* buttons */
+.btn{border:0; border-radius:999px; padding:12px 20px; font-weight:650; background:var(--ink); color:var(--paper); min-height:44px}
+.btn.alt{background:transparent; color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.brass{background:var(--brass); color:#fff}
+@media (prefers-color-scheme: dark){ .btn.brass{color:#1B1408} }
+.btn:disabled{opacity:.4}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+
+/* neck */
+.neck-wrap{margin:18px -18px 4px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:0 18px}
+.neck-wrap::-webkit-scrollbar{display:none}
+.neck{display:block; width:980px; height:auto}
+.neck .cell{cursor:pointer}
+.neck-caption{font-size:13px; color:var(--muted)}
+
+/* next lesson */
+.next{background:var(--surface); border-radius:22px; padding:20px; margin-top:18px; border:1px solid var(--line)}
+.next .where{font-size:14px; color:var(--muted)}
+.next .title{font-family:var(--round); font-size:24px; font-weight:800; margin:4px 0 10px}
+.next .outcome{font-size:17px; margin-bottom:16px}
+.week-log{display:flex; align-items:center; gap:14px; margin-top:14px; padding:14px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+.dots{display:flex; gap:6px}
+.dots span{width:14px; height:14px; border-radius:50%; box-shadow:inset 0 0 0 1.5px var(--line)}
+.dots span.on{background:var(--brass); box-shadow:none}
+.week-log .txt{flex:1; font-size:15px}
+details{border-top:1px solid var(--line); padding:14px 0}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{font-weight:650; cursor:pointer; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--muted); font-weight:400}
+details[open] summary::after{content:"–"}
+details p, details ul{font-size:15px; margin-top:10px}
+details ul{padding-left:20px}
+
+/* plan */
+.month{margin-top:30px}
+.month-head{display:flex; align-items:baseline; gap:10px}
+.month-head .n{font-family:var(--round); font-size:44px; font-weight:800; color:var(--brass); line-height:1}
+.month-goal{font-size:15px; color:var(--muted); margin:6px 0 4px}
+.week{padding:12px 0 4px; border-top:1px solid var(--line); margin-top:12px; scroll-margin-top:80px}
+.week-label{font-size:13px; color:var(--muted); margin-bottom:2px}
+.week.current .week-label{color:var(--brass); font-weight:650}
+.lrow{display:flex; gap:12px; align-items:center; width:100%; text-align:left; background:none; border:0; padding:9px 0}
+.tick{flex:none; width:26px; height:26px; border-radius:50%; box-shadow:inset 0 0 0 2px var(--line); display:grid; place-items:center}
+.tick svg{opacity:0}
+.done .tick{background:var(--brass); box-shadow:none}
+.done .tick svg{opacity:1}
+.lrow .lt{flex:1; min-width:0}
+.lrow .lt b{display:block; font-weight:650}
+.lrow .lt span{display:block; font-size:14px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lnum{font-variant-numeric:tabular-nums; color:var(--muted); font-size:14px; width:22px; text-align:right; flex:none}
+.bonus{font-size:14px; color:var(--muted); background:var(--surface); border-radius:12px; padding:10px 12px; margin-top:12px}
+
+/* chords */
+.chord-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px 10px; margin-top:16px}
+.chord{text-align:center; padding:10px 4px 12px}
+.chord .nm{font-family:var(--round); font-size:20px; font-weight:800}
+.chord .sub{font-size:12px; color:var(--muted); min-height:16px}
+.chord svg{width:112px; height:auto; display:block; margin:6px auto 0}
+.howto{font-size:15px; background:var(--surface); border-radius:16px; padding:14px 16px; margin-top:16px; border:1px solid var(--line)}
+
+/* songs */
+.song{padding:16px 0; border-top:1px solid var(--line)}
+.song:first-of-type{border-top:0}
+.song .nm{font-family:var(--round); font-size:19px; font-weight:750}
+.song .by{font-size:14px; color:var(--muted)}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 8px}
+.chip{font-family:var(--round); font-weight:700; font-size:14px; padding:4px 10px; border-radius:8px; background:var(--surface); border:1px solid var(--line)}
+.song .meta{font-size:14px; color:var(--muted)}
+.song .ready{color:var(--ok); font-weight:650}
+.song .links{display:flex; gap:16px; margin-top:8px; font-size:14px}
+.linkbtn{background:none; border:0; padding:0; color:var(--brass); font-weight:650; font-size:14px}
+
+/* tools */
+.tool{background:var(--surface); border:1px solid var(--line); border-radius:22px; padding:18px; margin-top:16px}
+.tool h3{margin-bottom:4px}
+.gauge{position:relative; height:96px; margin:16px 0 6px}
+.gauge .scale{position:absolute; left:0; right:0; top:50px; height:2px; background:var(--line)}
+.gauge .zone{position:absolute; left:calc(50% - 18px); width:36px; top:38px; height:26px; border-radius:6px; background:var(--brass-soft)}
+.gauge .needle{position:absolute; top:24px; left:50%; width:4px; height:52px; margin-left:-2px; border-radius:2px; background:var(--muted); transition:left .12s linear}
+.gauge.in .needle{background:var(--ok)}
+.tuner-read{display:flex; justify-content:space-between; align-items:baseline}
+.tuner-note{font-family:var(--round); font-size:44px; font-weight:800; line-height:1}
+.tuner-msg{font-size:16px; font-weight:650}
+.strings{display:grid; grid-template-columns:repeat(6,1fr); gap:6px; margin-top:12px}
+.strings button{border:1px solid var(--line); background:var(--paper); border-radius:12px; padding:10px 0 8px; min-height:56px}
+.strings button b{display:block; font-family:var(--round); font-size:18px}
+.strings button span{font-size:11px; color:var(--muted)}
+.strings button.hit{border-color:var(--brass); box-shadow:inset 0 0 0 1px var(--brass)}
+.bpm{display:flex; align-items:center; justify-content:center; gap:18px; margin:14px 0}
+.bpm .val{font-family:var(--round); font-size:52px; font-weight:800; min-width:110px; text-align:center; font-variant-numeric:tabular-nums; line-height:1}
+.bpm .val small{display:block; font-size:13px; color:var(--muted); font-weight:500; font-family:var(--sans)}
+.round{width:52px; height:52px; border-radius:50%; border:1.5px solid var(--line); background:var(--paper); font-size:24px; font-weight:600}
+.beats{display:flex; justify-content:center; gap:10px; margin:6px 0 14px}
+.beats span{width:16px; height:16px; border-radius:50%; background:var(--line)}
+.beats span.first{width:20px; height:20px}
+.beats span.lit{background:var(--brass)}
+.seg{display:flex; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:3px; gap:3px}
+.seg button{flex:1; border:0; background:none; border-radius:9px; padding:8px 4px; font-size:14px}
+.seg button.on{background:var(--ink); color:var(--paper); font-weight:650}
+.slider{width:100%; accent-color:var(--brass); margin:4px 0 10px}
+.countdown{font-family:var(--round); font-size:52px; font-weight:800; text-align:center; font-variant-numeric:tabular-nums; margin:8px 0}
+
+/* tab bar */
+.tabs{position:fixed; left:0; right:0; bottom:0; z-index:10; background:var(--surface); border-top:1px solid var(--line);
+  display:grid; grid-template-columns:repeat(5,1fr); padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabs button{border:0; background:none; color:var(--muted); font-size:11px; font-weight:600; padding:4px 0; display:flex; flex-direction:column; align-items:center; gap:3px; min-height:48px}
+.tabs button svg{width:24px; height:24px}
+.tabs button.on{color:var(--ink)}
+.tabs button.on svg{color:var(--brass)}
+
+/* lesson sheet */
+.sheet{position:fixed; inset:0; z-index:20; background:var(--paper); overflow-y:auto; -webkit-overflow-scrolling:touch;
+  transform:translateY(100%); transition:transform .28s cubic-bezier(.2,.8,.2,1); visibility:hidden}
+.sheet.open{transform:none; visibility:visible}
+.sheet-bar{position:sticky; top:0; z-index:2; background:var(--paper); padding:calc(env(safe-area-inset-top,0px) + 8px) 18px 8px;
+  display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--line)}
+.sheet-bar button{background:none; border:0; color:var(--brass); font-weight:650; padding:8px 0; min-height:44px}
+.sheet-bar .pos{font-size:14px; color:var(--muted)}
+.sheet-body{max-width:680px; margin:0 auto; padding:20px 18px calc(130px + env(safe-area-inset-bottom,0px))}
+.big-out{font-family:var(--round); font-size:22px; font-weight:700; line-height:1.3; margin:8px 0 0}
+.by-end{font-size:14px; color:var(--muted); margin-top:16px}
+.chord-row{display:flex; gap:4px; overflow-x:auto; margin:6px -18px 0; padding:0 18px; scrollbar-width:none}
+.chord-row::-webkit-scrollbar{display:none}
+.chord-row .chord{flex:none; width:124px}
+.strum{display:flex; gap:4px; margin-top:8px}
+.strum div{flex:1; max-width:52px; text-align:center; border-radius:10px; padding:8px 0 6px; background:var(--surface); border:1px solid var(--line)}
+.strum div.ghost{background:transparent; border-style:dashed}
+.strum b{display:block; font-size:22px; line-height:1.1}
+.strum span{font-size:12px; color:var(--muted)}
+.strum div.accent{border-color:var(--brass)}
+.steps{list-style:none; padding:0; margin:10px 0 0}
+.steps li{display:grid; grid-template-columns:58px 1fr; gap:10px; padding:12px 0; border-top:1px solid var(--line)}
+.steps li .m{font-family:var(--round); font-weight:800; color:var(--brass); font-variant-numeric:tabular-nums}
+.steps li.active{background:var(--brass-soft); margin:0 -18px; padding:12px 18px; grid-template-columns:58px 1fr; border-radius:0}
+.steps li.past{opacity:.5}
+.check{border-left:4px solid var(--brass); padding:4px 0 4px 14px; margin-top:22px}
+.check .h{font-size:14px; color:var(--muted)}
+.check .t{font-size:17px; font-weight:650}
+.tip{font-size:15px; color:var(--muted); margin-top:16px}
+.sheet-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:24px}
+.prevnext{display:flex; justify-content:space-between; margin-top:26px; padding-top:14px; border-top:1px solid var(--line)}
+.prevnext button{background:none; border:0; color:var(--brass); font-weight:650; padding:8px 0; min-height:44px}
+.timerbar{position:fixed; left:0; right:0; bottom:0; z-index:25; background:var(--ink); color:var(--paper);
+  padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px)); display:none; align-items:center; gap:12px}
+.timerbar.on{display:flex}
+.timerbar .tt{flex:1; min-width:0}
+.timerbar .tt b{font-family:var(--round); font-size:30px; font-variant-numeric:tabular-nums; display:block; line-height:1}
+.timerbar .tt span{font-size:13px; opacity:.75}
+.timerbar button{border:0; border-radius:999px; background:rgba(127,127,127,.28); color:inherit; padding:10px 14px; font-weight:650; min-height:44px}
+.done-banner{display:none; background:var(--brass-soft); border-radius:16px; padding:14px 16px; margin-top:18px}
+.done-banner.on{display:block}
+.toast{position:fixed; left:50%; bottom:calc(84px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--ink); color:var(--paper);
+  padding:10px 16px; border-radius:999px; font-size:14px; font-weight:600; opacity:0; pointer-events:none; transition:opacity .2s; z-index:40; white-space:nowrap}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion: reduce){ .sheet,.gauge .needle,.toast{transition:none} }
+</style>
+</head>
+<body>
+
+<main>
+  <!-- TODAY -->
+  <section class="view on" id="v-today">
+    <h1>First Frets</h1>
+    <p class="lede">Six months, 52 lessons, from nothing to a three-song set on your acoustic.</p>
+    <div class="neck-wrap" id="neckWrap"></div>
+    <div class="neck-caption" id="neckCaption"></div>
+    <div id="nextCard"></div>
+    <div class="week-log">
+      <div class="dots" id="weekDots"></div>
+      <div class="txt" id="weekTxt"></div>
+      <button class="btn alt" data-act="log">Log practice</button>
+    </div>
+    <p class="bonus" id="bonusTxt"></p>
+
+    <h2>How this works</h2>
+    <details>
+      <summary>The weekly rhythm</summary>
+      <p>Each week has two lessons, each 15–20 minutes, and each with one specific outcome. Practise 2–4 times a week:</p>
+      <ul>
+        <li>Session 1: Lesson A.</li>
+        <li>Session 2: Lesson B.</li>
+        <li>Sessions 3 and 4 (if you have them): bonus sessions. Follow the bonus note for the month, shown above.</li>
+      </ul>
+      <p>Only tick a lesson when you’ve hit its “You’ve got it when” check. If you haven’t, repeat it next session. Falling a week behind is normal; the plan just moves with you.</p>
+    </details>
+    <details>
+      <summary>Before you start</summary>
+      <ul>
+        <li>A pick (medium, around 0.6–0.7 mm) helps for strumming. Buy a few, they disappear.</li>
+        <li>A capo is needed from week 11. It’s cheap from any music shop.</li>
+        <li>Fingertips will be sore for the first 2–3 weeks. That’s normal and it passes. Stop if anything is sharp or painful.</li>
+        <li>Written for right-handed players: left hand on the frets, right hand strums.</li>
+      </ul>
+    </details>
+    <details>
+      <summary>The only theory you’ll need</summary>
+      <p>No sheet music. You’ll use chord boxes (pictures of where fingers go), strum arrows (↓ ↑), and counting “1 2 3 4” out loud. In month 4 you’ll learn which string is each chord’s bass note. That’s it.</p>
+    </details>
+    <details>
+      <summary>Offline use and your progress</summary>
+      <p>Once opened, this app works with no internet. Your ticks and practice log are saved on this phone only. Songs’ “Find chords” links need a connection.</p>
+      <div class="row" style="margin-top:12px"><button class="btn alt" data-act="reset">Reset all progress</button></div>
+    </details>
+  </section>
+
+  <!-- PLAN -->
+  <section class="view" id="v-plan">
+    <h1>The plan</h1>
+    <p class="lede">26 weeks in six stages. Tap a lesson to open it.</p>
+    <div id="planList"></div>
+  </section>
+
+  <!-- CHORDS -->
+  <section class="view" id="v-chords">
+    <h1>Chords</h1>
+    <div class="howto">
+      <p><b>Reading a chord box.</b> Vertical lines are the six strings, thickest on the left. Horizontal lines are frets, with the thick nut at the top. Dots show where to press; the number is which finger (1 index, 2 middle, 3 ring, 4 pinky).</p>
+      <p style="margin:0">○ above a string means play it open. × means don’t play it.</p>
+    </div>
+    <div class="chord-grid" id="chordGrid"></div>
+  </section>
+
+  <!-- SONGS -->
+  <section class="view" id="v-songs">
+    <h1>Songs</h1>
+    <p class="lede">The popular tunes you’ll learn, with the chords they use. Find a chord sheet (chords above the lyrics) for the song, then play along with the recording.</p>
+    <p class="small muted" style="margin-top:10px">If your chords sound out of tune against a recording, try moving the capo up one fret at a time until they match.</p>
+    <div id="songList"></div>
+  </section>
+
+  <!-- TOOLS -->
+  <section class="view" id="v-tools">
+    <h1>Tools</h1>
+    <div class="tool">
+      <h3>Tuner</h3>
+      <p class="small muted">Pluck one string at a time, close to the phone. Turn the peg until the needle sits in the middle.</p>
+      <div class="tuner-read"><div class="tuner-note" id="tNote">–</div><div class="tuner-msg" id="tMsg">Tap start to listen</div></div>
+      <div class="gauge" id="gauge"><div class="scale"></div><div class="zone"></div><div class="needle" id="needle"></div></div>
+      <div class="row"><button class="btn" data-act="tuner" id="tunerBtn">Start tuner</button></div>
+      <p class="small muted" style="margin:14px 0 0">Or tune by ear: tap a string to hear its note.</p>
+      <div class="strings" id="stringBtns"></div>
+    </div>
+
+    <div class="tool">
+      <h3>Metronome</h3>
+      <div class="bpm">
+        <button class="round" data-act="bpm" data-d="-5" aria-label="Slower">−</button>
+        <div class="val"><span id="bpmVal">60</span><small>beats per minute</small></div>
+        <button class="round" data-act="bpm" data-d="5" aria-label="Faster">+</button>
+      </div>
+      <input class="slider" type="range" min="40" max="160" step="1" value="60" id="bpmSlider" aria-label="Tempo">
+      <div class="beats" id="beatDots"></div>
+      <div class="row" style="justify-content:space-between">
+        <div class="seg" id="bpbSeg" style="flex:1">
+          <button data-act="bpb" data-v="4" class="on">4 beats</button>
+          <button data-act="bpb" data-v="3">3 beats</button>
+          <button data-act="bpb" data-v="6">6 beats</button>
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px"><button class="btn" data-act="metro" id="metroBtn">Start</button></div>
+    </div>
+
+    <div class="tool">
+      <h3>One-minute changes</h3>
+      <p class="small muted">Switch between two chords as many times as you can in 60 seconds, one strum each. Count in your head. It beeps at the end.</p>
+      <div class="countdown" id="minVal">1:00</div>
+      <div class="row"><button class="btn" data-act="minute" id="minBtn">Start 60 seconds</button></div>
+    </div>
+    <p class="small muted" style="margin-top:16px">No sound? Check the silent switch on the side of your iPhone and the volume.</p>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button data-act="tab" data-v="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/></svg>Today</button>
+  <button data-act="tab" data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2"/><circle cx="4.5" cy="12" r="1.2"/><circle cx="4.5" cy="18" r="1.2"/></svg>Plan</button>
+  <button data-act="tab" data-v="chords"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 4h14M5 4v16M9.7 4v16M14.3 4v16M19 4v16M5 9.5h14M5 15h14"/><circle cx="12" cy="12.2" r="1.6" fill="currentColor"/></svg>Chords</button>
+  <button data-act="tab" data-v="songs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>Songs</button>
+  <button data-act="tab" data-v="tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l-6 18h12z"/><path d="M12 15l4-6"/></svg>Tools</button>
+</nav>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Lesson">
+  <div class="sheet-bar"><button data-act="close">Close</button><span class="pos" id="sheetPos"></span><span style="width:44px"></span></div>
+  <div class="sheet-body" id="sheetBody"></div>
+</div>
+<div class="timerbar" id="timerbar">
+  <div class="tt"><b id="tbTime">0:00</b><span id="tbStep"></span></div>
+  <button data-act="tpause" id="tbPause">Pause</button>
+  <button data-act="tnext">Next</button>
+  <button data-act="tstop">Stop</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ---------------- DATA ---------------- */
+const CHORDS = {
+  Em:{name:"Em", f:[0,2,2,0,0,0], fi:[0,2,3,0,0,0], l:3},
+  Asus2:{name:"Asus2", f:[-1,0,2,2,0,0], fi:[0,0,2,3,0,0], l:4},
+  D:{name:"D", f:[-1,-1,0,2,3,2], fi:[0,0,0,1,3,2], l:6},
+  G:{name:"G", f:[3,2,0,0,0,3], fi:[2,1,0,0,0,3], l:7},
+  C:{name:"C", f:[-1,3,2,0,1,0], fi:[0,3,2,0,1,0], l:9},
+  Am:{name:"Am", f:[-1,0,2,2,1,0], fi:[0,0,2,3,1,0], l:11},
+  A:{name:"A", f:[-1,0,2,2,2,0], fi:[0,0,1,2,3,0], l:13},
+  E:{name:"E", f:[0,2,2,1,0,0], fi:[0,2,3,1,0,0], l:15},
+  Dm:{name:"Dm", f:[-1,-1,0,2,3,1], fi:[0,0,0,2,3,1], l:21},
+  Fmaj7:{name:"Fmaj7", sub:"easy F", f:[-1,-1,3,2,1,0], fi:[0,0,3,2,1,0], l:35},
+  F:{name:"F", sub:"mini barre", f:[-1,-1,3,2,1,1], fi:[0,0,3,2,1,1], barre:{fret:1,from:4,to:5}, l:37},
+  G2:{name:"G", sub:"anchor version", f:[3,2,0,0,3,3], fi:[2,1,0,0,3,4], l:39},
+  Cadd9:{name:"Cadd9", f:[-1,3,2,0,3,3], fi:[0,2,1,0,3,4], l:39},
+  Dsus4:{name:"Dsus4", f:[-1,-1,0,2,3,3], fi:[0,0,0,1,3,4], l:39},
+  Em7:{name:"Em7", f:[0,2,2,0,3,3], fi:[0,1,2,0,3,4], l:40},
+  A7sus4:{name:"A7sus4", f:[-1,0,2,2,3,3], fi:[0,0,1,2,3,4], l:40},
+  Dsus2:{name:"Dsus2", f:[-1,-1,0,2,3,0], fi:[0,0,0,1,3,0], l:41}
+};
+
+const PATTERNS = {
+  downs:{name:"Downstrokes, one per beat", c:["1","2","3","4"], s:"DDDD"},
+  eighths:{name:"Down-ups", c:["1","&","2","&","3","&","4","&"], s:"DUDUDUDU"},
+  folk:{name:"The folk pattern: Down, Down-Up, Up-Down-Up", c:["1","&","2","&","3","&","4","&"], s:"D-DU-UDU"},
+  six:{name:"6/8 lilt: lean on 1 and 4", c:["1","2","3","4","5","6"], s:"DDUDDU"}
+};
+
+const MONTHS = [
+  {n:1, name:"First sounds", from:1, to:4, goal:"Hold and tune the guitar, play five chords cleanly, and strum in time.",
+   bonus:"Bonus sessions this month: repeat whichever lesson felt hardest, then finish with one-minute changes. Note your scores; they should creep up every week."},
+  {n:2, name:"Open chords and first songs", from:5, to:8, goal:"Learn the core open chords, strum down-ups, and play your first two songs.",
+   bonus:"Bonus sessions this month: one-minute changes on your two slowest chord pairs (5 min), then play through any song you’ve learned."},
+  {n:3, name:"Rhythm", from:9, to:13, goal:"Make it sound like music: a real strum pattern, smooth changes, the capo, and three more songs.",
+   bonus:"Bonus sessions this month: play your songs along with the recordings using the folk pattern. Ahead of schedule? Pick a song from the Songs tab."},
+  {n:4, name:"Fingerpicking", from:14, to:17, goal:"Put the pick down: simple picking patterns, bass notes, and a fingerpicked song.",
+   bonus:"Bonus sessions this month: alternate between a fingerpicking session and a strummed-songs session so the strumming doesn’t go rusty."},
+  {n:5, name:"More chords, more songs", from:18, to:22, goal:"Tackle F, learn the anchor-finger chord family, add 6/8 time, and four more songs.",
+   bonus:"Bonus sessions this month: 5 minutes on the mini F, then songs. F takes weeks for everyone, so keep chipping away."},
+  {n:6, name:"Your set", from:23, to:26, goal:"Build a three-song set, play it without stopping, and perform it.",
+   bonus:"Bonus sessions this month: run your set. If there’s time, start another song from the Songs tab."}
+];
+
+const SONGS = [
+  {id:"bmr", name:"Bad Moon Rising", by:"Creedence Clearwater Revival", c:["D","A","G"], l:14, strum:"Downstrokes"},
+  {id:"tlb", name:"Three Little Birds", by:"Bob Marley & The Wailers", c:["A","D","E"], l:16, strum:"Down-ups"},
+  {id:"kohd", name:"Knockin’ on Heaven’s Door", by:"Bob Dylan", c:["G","D","Am","C"], l:19, strum:"Folk pattern, or fingerpicked (lesson 33)"},
+  {id:"sbm", name:"Stand By Me", by:"Ben E. King", c:["G","Em","C","D"], capo:2, l:23, strum:"Folk pattern"},
+  {id:"beg", name:"Brown Eyed Girl", by:"Van Morrison", c:["G","C","D","Em"], l:25, strum:"Folk pattern"},
+  {id:"lib", name:"Let It Be", by:"The Beatles", c:["C","G","Am","Fmaj7"], l:36, strum:"Gentle downstrokes", note:"Use Fmaj7 (or F) wherever the sheet says F."},
+  {id:"hyesr", name:"Have You Ever Seen the Rain", by:"Creedence Clearwater Revival", c:["C","G","Am","F"], l:38, strum:"Folk pattern", note:"Fmaj7 is fine if the mini F isn’t ringing yet."},
+  {id:"ww", name:"Wonderwall", by:"Oasis", c:["Em7","G2","Dsus4","A7sus4","Cadd9"], capo:2, l:40, strum:"Down-ups to start", note:"A stretch goal. The anchor fingers do most of the work."},
+  {id:"shab", name:"Sweet Home Alabama", by:"Lynyrd Skynyrd", c:["D","Cadd9","G2"], l:42, strum:"Folk pattern with sus decorations"},
+  {id:"perf", name:"Perfect", by:"Ed Sheeran", c:["G","Em","C","D"], capo:1, l:44, strum:"6/8 lilt"},
+  {id:"zom", name:"Zombie", by:"The Cranberries", c:["Em","C","G","D"], l:45, strum:"Folk pattern, quiet verse, loud chorus"},
+  {id:"wag", name:"Wagon Wheel", by:"Old Crow Medicine Show / Darius Rucker", c:["G","D","Em","C"], l:46, strum:"Folk pattern, upbeat"}
+];
+
+/* Lessons: w=week, t=title, o=outcome, c=chords, p=pattern, s=[[minutes, text]], k=check, tip, song */
+const LESSONS = [
+/* MONTH 1 */
+{w:1, t:"Hold it, tune it", o:"Tune all six strings and name each one.", c:[], s:[
+ [3,"Sit on a chair without arms. Rest the guitar’s waist on your right thigh, its back against your chest, the neck pointing slightly upward. Your left thumb sits behind the neck, not wrapped over the top."],
+ [8,"Open Tools, then Tuner. Pluck the thickest string and turn its peg slowly until the needle centres. Work from thickest to thinnest. Strings drift at first, so go round twice."],
+ [5,"Learn the string names, thickest to thinnest: E A D G B E. Memory line: Eddie Ate Dynamite, Good Bye Eddie. Pluck each one and say its name out loud."],
+ [2,"Strum slowly across all six open strings with your thumb or a pick. Just listen to the guitar in tune."]],
+ k:"You can tune from scratch in under 5 minutes and name any string without counting.",
+ tip:"Tune at the start of every session. An out-of-tune guitar makes perfect fingers sound wrong."},
+{w:1, t:"Clean notes", o:"Play a clean, buzz-free note with each finger.", c:[], s:[
+ [2,"Tune up."],
+ [5,"Press with your fingertip just behind the metal fret wire, not on top of it and not in the middle of the gap. Keep your fingernails short. Thumb behind the neck, roughly opposite your middle finger."],
+ [8,"Finger walk: on the thinnest string, play fret 1 with finger 1, fret 2 with finger 2, fret 3 with finger 3, fret 4 with finger 4 (index to pinky). Pick each note twice. Repeat on the B string, then the G string."],
+ [3,"Buzz hunt: when a note buzzes, move that finger closer to the fret or press a little harder. Find and fix three buzzes."]],
+ k:"You can play the four-finger walk on two strings with every note ringing clearly.",
+ tip:"Sore fingertips are normal for the first few weeks. Short, regular sessions build calluses faster than long ones."},
+
+{w:2, t:"Your first chord: E minor", o:"Play Em with all six strings ringing.", c:["Em"], s:[
+ [2,"Tune up."],
+ [5,"Make the shape: middle finger on the A string, 2nd fret; ring finger on the D string, 2nd fret. Arch your fingers so they don’t touch the strings next to them."],
+ [5,"String check: pluck each string one at a time, thick to thin. Every one should ring. If one is dead, find which finger is touching it and adjust."],
+ [6,"Lift and land: take your fingers off, shake out your hand, put the shape back. Strum four slow downstrokes. Do this 15 times."]],
+ k:"You can land Em and strum it with all six strings ringing, 5 times out of 5."},
+{w:2, t:"Two chords: Em to Asus2", o:"Switch between Em and Asus2 smoothly.", c:["Em","Asus2"], s:[
+ [2,"Tune up, then play Em a few times."],
+ [4,"Asus2: move the same two fingers across one string each. Middle goes to the D string, ring to the G string, both on the 2nd fret. Don’t play the thickest string."],
+ [8,"Slow switch: 4 strums on Em, 4 on Asus2, repeat. Move both fingers together as one unit. Aim for no pause between the chords."],
+ [4,"One-minute changes (Tools has a timer): switch back and forth as many times as you can, one strum each. Count the changes and remember your score."]],
+ k:"15 or more clean changes in one minute.",
+ tip:"One-minute changes are the fastest way to get better at chords. You’ll use this drill all the way through the programme."},
+
+{w:3, t:"Strum in time", o:"Strum in time with a metronome for a full minute.", c:["Em","Asus2"], p:"downs", s:[
+ [2,"Tune up."],
+ [4,"Strumming motion: hold the pick loosely between your thumb and the side of your index finger. Swing from the wrist and forearm, like shaking water off your hand. Not from the shoulder."],
+ [8,"Open the metronome at 60. One downstroke per click. 4 strums on Em, 4 on Asus2. Count “1 2 3 4” out loud."],
+ [4,"Change on time: make the first strum of each new chord land exactly on the click, even if the last strum before it is a bit messy."]],
+ k:"One full minute at 60 bpm without falling off the click."},
+{w:3, t:"The D chord", o:"Play D cleanly without hitting the thick strings.", c:["D"], s:[
+ [2,"Tune up, then warm up with Em to Asus2 changes."],
+ [6,"D: index on the G string 2nd fret, ring on the B string 3rd fret, middle on the thin E string 2nd fret. It makes a small triangle. Strum only the four thinnest strings, starting from the D string."],
+ [6,"String check, then lift and land 15 times."],
+ [4,"One-minute changes: Asus2 to D."]],
+ k:"D rings clearly without the thick strings, and 12+ Asus2 to D changes in a minute."},
+
+{w:4, t:"The G chord", o:"Play G with all six strings ringing.", c:["G"], s:[
+ [2,"Tune up."],
+ [6,"G: middle finger on the thick E string 3rd fret, index on the A string 2nd fret, ring on the thin E string 3rd fret. All six strings ring."],
+ [6,"String check, then lift and land. The thick-string finger is the stretch, so keep your wrist low and thumb behind the neck."],
+ [4,"One-minute changes: Em to G."]],
+ k:"G rings on all six strings, and 12+ Em to G changes in a minute."},
+{w:4, t:"Your first progression", o:"Loop G, D and Em in time at 60 bpm.", c:["G","D","Em"], p:"downs", s:[
+ [2,"Tune up."],
+ [5,"One-minute changes: G to D, then D to Em."],
+ [8,"Metronome at 60. Loop: G (4 strums), D (4), Em (4), Em (4). Count out loud. If you fumble, keep strumming; the beat doesn’t wait."],
+ [3,"Play it once without the metronome, a bit slower, and notice how it already sounds like the start of a song."]],
+ k:"Three loops in a row in time, without stopping."},
+
+/* MONTH 2 */
+{w:5, t:"The C chord", o:"Play C cleanly with the thin E string ringing open.", c:["C"], s:[
+ [2,"Tune up, then warm up with the G, D, Em loop."],
+ [6,"C: ring on the A string 3rd fret, middle on the D string 2nd fret, index on the B string 1st fret. Don’t play the thick E string. Arch the index finger so the thin E rings open."],
+ [6,"String check, then lift and land 15 times."],
+ [4,"One-minute changes: G to C."]],
+ k:"C rings on five strings, and 12+ G to C changes in a minute."},
+{w:5, t:"The four-chord loop", o:"Play G, D, Em, C in time at 60 bpm.", c:["G","D","Em","C"], p:"downs", s:[
+ [2,"Tune up."],
+ [5,"One-minute changes on your hardest pair (usually Em to C, or C to G)."],
+ [9,"Metronome at 60. G, D, Em, C, 4 downstrokes each. Loop until it stays in time."],
+ [3,"Speed check: try one loop at 70."]],
+ k:"Four clean loops in a row at 60 bpm.",
+ tip:"This loop is in hundreds of pop songs. It returns in month 6."},
+
+{w:6, t:"A minor", o:"Switch between C and Am, moving only one finger.", c:["Am"], s:[
+ [2,"Tune up and warm up with C."],
+ [5,"Am is C’s close cousin. Keep the index (B string 1st fret) and middle (D string 2nd fret) where they are. Move the ring finger from the A string to the G string, 2nd fret. Skip the thick E string."],
+ [7,"Change C to Am slowly, noticing that only one finger moves. Then one-minute changes."],
+ [4,"Loop Am, C, G, G with 4 downstrokes each at 60."]],
+ k:"20+ C to Am changes in a minute. This is the easiest change you’ll learn."},
+{w:6, t:"Down-up strumming", o:"Strum steady down-ups while changing chords.", c:["G","C"], p:"eighths", s:[
+ [2,"Tune up."],
+ [5,"Your hand is a pendulum: down on the numbers, up on the “ands”. Count “1 & 2 & 3 & 4 &”. Upstrokes only need to catch the thinner three or four strings."],
+ [7,"Metronome at 60. First on muted strings (rest your left hand lightly across them) until it feels even, then on G."],
+ [4,"Switch between G and C every bar, keeping the strumming hand moving even while you change."]],
+ k:"Two minutes of even down-ups at 60 while changing G to C every bar.",
+ tip:"The golden rule: your strumming hand never stops. If you miss strings, miss them in time."},
+
+{w:7, t:"A major", o:"Play A cleanly and change to it from D.", c:["A"], s:[
+ [2,"Tune up."],
+ [6,"A: index, middle and ring all on the 2nd fret of the D, G and B strings, squeezed in a row. Skip the thick E string. The thin E must ring, so angle your fingers to fit."],
+ [6,"String check, then lift and land."],
+ [4,"One-minute changes: D to A."]],
+ k:"A rings with the thin E clear, and 12+ D to A changes in a minute."},
+{w:7, t:"First song: Bad Moon Rising", o:"Play Bad Moon Rising along with the recording.", c:["D","A","G"], p:"downs", song:"bmr", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: D to A, then A to G."],
+ [7,"Find a chord sheet for the song. The verse moves D, A, G, D and the chorus starts on G. Play it slowly with one downstroke per beat."],
+ [5,"Play along with the recording. It’s quick, so if you can’t keep up, strum once per chord and just hit the changes on time."]],
+ k:"You get through a verse and chorus along with the recording without stopping."},
+
+{w:8, t:"E major", o:"Play E and switch between A and E.", c:["E"], s:[
+ [2,"Tune up."],
+ [5,"E is the Am shape moved one string thicker: middle on the A string 2nd fret, ring on the D string 2nd fret, index on the G string 1st fret. All six strings ring."],
+ [7,"Change Am to E: the whole shape just shifts across one string. Then one-minute changes A to E."],
+ [4,"Loop A, D, E, A with down-ups at 60."]],
+ k:"E rings fully, and 12+ A to E changes in a minute."},
+{w:8, t:"Song: Three Little Birds", o:"Play Three Little Birds along with the recording.", c:["A","D","E"], p:"eighths", song:"tlb", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: A to D, then A to E."],
+ [7,"The whole song uses just A, D and E. Find a chord sheet and play it with relaxed down-ups at a slow pace."],
+ [5,"Play along with the recording. Optional reggae feel: strum only the upstrokes (the “ands”)."]],
+ k:"You play the whole song along with the recording."},
+
+/* MONTH 3 */
+{w:9, t:"The strum pattern you’ll use most", o:"Play the folk strum pattern for eight bars without breaking it.", c:["G"], p:"folk", s:[
+ [2,"Tune up."],
+ [5,"On muted strings, learn: Down, Down-Up, Up-Down-Up. Say it as you play. The gap on beat 3 is a ghost: your hand still swings down but misses the strings."],
+ [8,"Metronome at 60, on G. Two bars of the pattern, short rest, repeat. Keep the pendulum going."],
+ [3,"Try it at 70."]],
+ k:"Eight bars in a row on G at 60, pattern unbroken."},
+{w:9, t:"Pattern plus changes", o:"Keep the folk pattern going through chord changes.", c:["G","C","D"], p:"folk", s:[
+ [2,"Tune up, then one minute of the pattern on G."],
+ [6,"Change from G to C every bar using the pattern. Make the change during the last upstroke of the bar."],
+ [7,"Loop G, C, D, G one bar each, metronome at 60."],
+ [3,"Play it without the metronome and enjoy it."]],
+ k:"Four loops of G, C, D, G with the pattern and no pauses."},
+
+{w:10, t:"Song: Knockin’ on Heaven’s Door", o:"Play Knockin’ on Heaven’s Door along with the recording.", c:["G","D","Am","C"], p:"folk", song:"kohd", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: D to Am, then D to C."],
+ [8,"The song is two short loops: G, D, Am (Am lasts twice as long) and G, D, C (C lasts twice as long). One bar of the pattern per chord."],
+ [4,"Play along with the recording."]],
+ k:"You play the full song along with the recording."},
+{w:10, t:"Smooth changes", o:"Play a four-chord loop at 70 bpm with no gaps in the strum.", c:["G","D","Em","C"], p:"folk", s:[
+ [2,"Tune up."],
+ [5,"The open-string trick: start moving to the next chord on the last upstroke of each bar. That strum hits open strings, which is normal and nobody notices."],
+ [8,"Play G, D, Em, C with the pattern at 60, then 70. Focus only on never stopping the strumming hand."],
+ [3,"For each change, notice which finger can land first and aim for it."]],
+ k:"G, D, Em, C at 70 bpm with no gaps in the strum."},
+
+{w:11, t:"D minor", o:"Play Dm and hear the difference between major and minor.", c:["Dm"], s:[
+ [2,"Tune up."],
+ [5,"Dm: index on the thin E string 1st fret, middle on the G string 2nd fret, ring on the B string 3rd fret. Strum only the four thinnest strings."],
+ [7,"Swap between D and Dm and hear the bright versus sad sound. Then one-minute changes Am to Dm."],
+ [4,"Loop Am, Dm, E, Am. This is the sound of a minor-key song."]],
+ k:"Dm rings cleanly, and 12+ Am to Dm changes in a minute."},
+{w:11, t:"The capo", o:"Use a capo to play familiar shapes in a higher key.", c:["G","Em","C","D"], s:[
+ [2,"Tune up without the capo."],
+ [5,"A capo clamps across all the strings and raises them. Clip it just behind the 2nd fret. Your chord shapes stay the same; they just sound higher. Check the tuning again."],
+ [8,"Play G, Em, C, D with the capo on 2, then on 4, then take it off. Hear how the same shapes change key."],
+ [3,"Why it matters: it lets you match a recording, or your voice, using easy shapes."]],
+ k:"You can fit the capo quickly, play in tune with it, and explain what it does."},
+
+{w:12, t:"Song: Stand By Me", o:"Play Stand By Me with a capo along with the recording.", c:["G","Em","C","D"], p:"folk", song:"sbm", s:[
+ [2,"Tune up, capo on the 2nd fret."],
+ [4,"One-minute changes: Em to C, then C to D."],
+ [8,"The loop is G, Em, C, D, then back to G. G and Em get two bars each. Find a chord sheet and play with downstrokes or the folk pattern."],
+ [4,"Play along with the recording."]],
+ k:"You play the whole song along with the recording."},
+{w:12, t:"Loud and quiet", o:"Change strumming volume without changing speed.", c:["G","Em","C","D"], p:"folk", s:[
+ [2,"Tune up."],
+ [6,"Accent beats 2 and 4: strum those slightly harder. The rhythm starts to lean forward."],
+ [7,"Play a song you know three times: once quiet, once medium, once loud. Keep the tempo identical each time."],
+ [3,"Decide what suits the verse versus the chorus."]],
+ k:"You switch between quiet and loud strumming without speeding up."},
+
+{w:13, t:"Song: Brown Eyed Girl", o:"Play Brown Eyed Girl along with the recording.", c:["G","C","D","Em"], p:"folk", song:"beg", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: C to G, then D to Em."],
+ [8,"The verse cycles G, C, G, D. The chorus brings in C, D, G and Em. Find a chord sheet and play it slower than the recording first."],
+ [4,"Play along with the recording."]],
+ k:"You play a verse and chorus along with the recording."},
+{w:13, t:"Checkpoint: three songs", o:"Play three songs back to back without stopping.", c:[], s:[
+ [2,"Tune up."],
+ [15,"Play three songs in a row, such as Bad Moon Rising, Knockin’ on Heaven’s Door and Stand By Me. If you make a mistake, keep going."],
+ [2,"Note which change tripped you up most. That’s your one-minute-changes target for the bonus sessions."]],
+ k:"Three songs in a row without stopping. Halfway there."},
+
+/* MONTH 4 */
+{w:14, t:"Fingers instead of a pick", o:"Pick an even four-note pattern on Em with your fingers.", c:["Em"], s:[
+ [2,"Tune up."],
+ [5,"Assign fingers: your thumb plays the three thick strings. Index takes the G string, middle the B string, ring the thin E string. No pick."],
+ [8,"On Em: thumb (thick E string), index, middle, ring. Four even notes. Metronome at 60, one note per click."],
+ [3,"Speed up to two notes per click."]],
+ k:"Thumb, index, middle, ring on Em, even and steady for one minute."},
+{w:14, t:"Find the bass note", o:"Start every chord on its correct bass string.", c:["G","C","D","Am"], s:[
+ [2,"Tune up."],
+ [6,"Each chord has a bass string your thumb starts on. G, Em and E: thick E string. C, Am and A: A string. D and Dm: D string. This is the only theory you need for fingerpicking."],
+ [7,"Play the four-note pattern on G, C, D and Am, with the thumb starting on the right bass string each time. Twice per chord."],
+ [3,"Loop G, C, D, G with the pattern."]],
+ k:"You hit the correct bass note on every change without staring at your hand."},
+
+{w:15, t:"A rolling pattern", o:"Play a smooth six-note roll through four chords.", c:["C","Am","G","Em"], s:[
+ [2,"Tune up."],
+ [5,"Pattern: thumb, index, middle, ring, middle, index. Six notes rolling up and back down."],
+ [8,"Play it on C and Am, two rolls per chord, metronome at 60 (one note per click)."],
+ [3,"Try G and Em, with the thumb on the thick E string."]],
+ k:"The six-note roll, smooth, through C, Am, G, Em."},
+{w:15, t:"The pinch", o:"Pluck bass and top string together as one sound.", c:["C","Am","G"], s:[
+ [2,"Tune up."],
+ [5,"A pinch is the thumb and ring finger plucking at the same moment: bass and thin string together. It sounds full, almost like a piano."],
+ [8,"Pattern: pinch, index, middle, index. Loop it on C, then Am, then G."],
+ [3,"Mix it up: pinch on the first beat of each chord, the rolling pattern for the rest."]],
+ k:"Pinch pattern through C, Am, G with both notes sounding together."},
+
+{w:16, t:"Alternating bass", o:"Keep a steady alternating thumb on C.", c:["C"], s:[
+ [2,"Tune up."],
+ [6,"On C, your thumb alternates between the A string and the D string, steady as a clock. Just the thumb for two minutes."],
+ [8,"Add the index finger on the G string between thumb notes: thumb, index, thumb, index. Keep the thumb perfectly even. Metronome at 50."],
+ [2,"Shake out your hand. This one is a brain workout."]],
+ k:"Four bars of thumb-index alternating bass on C at 50 bpm."},
+{w:16, t:"Alternating bass on more chords", o:"Keep the alternating bass going through C, Am and G.", c:["C","Am","G"], s:[
+ [2,"Tune up, then one minute of the C pattern."],
+ [6,"Am: thumb alternates A and D strings (same as C). G: thumb alternates thick E and D strings."],
+ [8,"Loop C, Am, G, G one bar each at 50, thumb never stopping."],
+ [2,"Try 60 if it feels solid."]],
+ k:"C, Am, G with a steady alternating bass at 50 bpm."},
+
+{w:17, t:"Fingerpick a song", o:"Play Knockin’ on Heaven’s Door fingerpicked.", c:["G","D","Am","C"], song:"kohd", s:[
+ [2,"Tune up."],
+ [5,"Choose your pattern: the six-note roll or the pinch pattern. Thumb on the right bass string for each chord (D starts on the D string)."],
+ [9,"Play the song fingerpicked, one pattern per bar, slowly."],
+ [3,"Play along with the recording, or alone at your own pace."]],
+ k:"The whole song fingerpicked without stopping."},
+{w:17, t:"Hammer-ons", o:"Add a clean hammer-on inside a chord.", c:["C"], s:[
+ [2,"Tune up."],
+ [5,"A hammer-on: pluck an open string, then snap a finger down onto a fret so a second note sounds without plucking again. Try it on the D string: pluck it open, hammer your middle finger onto the 2nd fret."],
+ [7,"Inside C: hold C, lift your middle finger, pick the D string, hammer the finger back on. Then strum the rest of the chord. Repeat until it pops cleanly."],
+ [4,"Loop G, C, D, G with a hammer-on at the start of each C."]],
+ k:"A clean, audible hammer-on in C, 5 times out of 5."},
+
+/* MONTH 5 */
+{w:18, t:"Easy F (Fmaj7)", o:"Change between C and Fmaj7 smoothly.", c:["Fmaj7"], s:[
+ [2,"Tune up."],
+ [5,"Fmaj7: ring on the D string 3rd fret, middle on the G string 2nd fret, index on the B string 1st fret. Thin E open. Play only the four thinnest strings."],
+ [7,"C to Fmaj7: the index stays put, and ring and middle each shift one string thinner. One-minute changes."],
+ [4,"Loop C, G, Am, Fmaj7 with the folk pattern."]],
+ k:"Fmaj7 rings clearly, and 15+ C to Fmaj7 changes in a minute."},
+{w:18, t:"Song: Let It Be", o:"Play Let It Be along with the recording.", c:["C","G","Am","Fmaj7"], song:"lib", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: Am to Fmaj7."],
+ [8,"Use Fmaj7 wherever the sheet says F. The main loops are C, G, Am, F, then C, G, F, C. Gentle downstrokes, like a ballad."],
+ [4,"Play along with the recording."]],
+ k:"Verse and chorus along with the recording."},
+
+{w:19, t:"Real F (mini barre)", o:"Get the mini F ringing on four strings.", c:["F"], s:[
+ [2,"Tune up."],
+ [6,"Start from Fmaj7, then lay your index finger flat across the B and thin E strings at the 1st fret. Roll it slightly onto its bony side. Play only the four thinnest strings."],
+ [6,"String check: the thin E is the one that usually dies. Press with the edge of the finger and bring your elbow in slightly."],
+ [4,"Change C to F slowly. If F won’t ring yet, use Fmaj7 in songs and keep practising F in bonus sessions."]],
+ k:"Mini F with all four strings ringing, 3 times out of 5."},
+{w:19, t:"Song: Have You Ever Seen the Rain", o:"Play Have You Ever Seen the Rain along with the recording.", c:["C","G","Am","F"], p:"folk", song:"hyesr", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: F (or Fmaj7) to G."],
+ [8,"The verse sits mostly on C with a G; the chorus moves through F, G, C and Am. Folk pattern with a driving feel."],
+ [4,"Play along with the recording."]],
+ k:"Verse and chorus along with the recording."},
+
+{w:20, t:"Anchor fingers", o:"Change between G, Cadd9 and Dsus4 with two fingers never moving.", c:["G2","Cadd9","Dsus4"], s:[
+ [2,"Tune up."],
+ [6,"New G: middle on the thick E 3rd fret, index on the A string 2nd fret, ring on the B string 3rd fret, pinky on the thin E 3rd fret. Ring and pinky are your anchors."],
+ [7,"Cadd9 and Dsus4 keep ring and pinky planted; only the other fingers move. Loop G, Cadd9, Dsus4, Cadd9."],
+ [3,"Swap these into a song you know wherever it has G, C or D. Hear how they ring."]],
+ k:"The G, Cadd9, Dsus4 loop with ring and pinky never lifting."},
+{w:20, t:"Song: Wonderwall (stretch goal)", o:"Play the Wonderwall verse loop with anchors held.", c:["Em7","G2","Dsus4","A7sus4"], p:"eighths", song:"ww", s:[
+ [2,"Tune up, capo on the 2nd fret."],
+ [5,"Em7 and A7sus4 use the same anchors: ring and pinky stay on the 3rd fret of the B and thin E strings the whole time."],
+ [8,"The verse loops Em7, G, Dsus4, A7sus4. Use simple down-ups. The real strum is busy, so don’t worry about matching it yet."],
+ [4,"Play along with the recording at whatever level you can, even one strum per chord."]],
+ k:"The verse loop, smooth, with anchors held, at any tempo."},
+
+{w:21, t:"Make chords move", o:"Decorate a D chord with sus notes in time.", c:["D","Dsus4","Dsus2"], s:[
+ [2,"Tune up."],
+ [5,"From D, swap your middle finger for your pinky on the thin E 3rd fret: that’s Dsus4. Lift the middle finger off completely: that’s Dsus2. These decorations make one chord sound like a tune."],
+ [8,"Strum D, then flick between D, Dsus4, D, Dsus2 within one bar. Then put it into a G, C, D loop, decorating every D."],
+ [3,"Freestyle for a few minutes. No rules."]],
+ k:"D with sus decorations inside a loop, in time."},
+{w:21, t:"Song: Sweet Home Alabama", o:"Play Sweet Home Alabama along with the recording.", c:["D","Cadd9","G2"], p:"folk", song:"shab", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: D, Cadd9, G. The anchor shapes make this easy."],
+ [9,"The whole song loops D, C, G. Use Cadd9 and the anchor G, and drop Dsus4 and Dsus2 decorations into the D."],
+ [4,"Play along with the recording."]],
+ k:"A full verse and chorus along with the recording."},
+
+{w:22, t:"Waltz time (6/8)", o:"Strum a four-chord loop in 6/8 with the right lilt.", c:["G","Em","C","D"], p:"six", s:[
+ [2,"Tune up."],
+ [5,"Some songs count in sixes: “1 2 3 4 5 6”, leaning on 1 and 4. Strum: down, down, up, down, down, up. Count out loud."],
+ [8,"Set the metronome to 6 beats at 90. Loop G, Em, C, D one bar each."],
+ [3,"Try fingerpicking it: thumb on 1 and 4, rolling notes in between."]],
+ k:"G, Em, C, D in 6/8 for four loops, with the lilt on 1 and 4."},
+{w:22, t:"Song: Perfect", o:"Play Perfect along with the recording.", c:["G","Em","C","D"], p:"six", song:"perf", s:[
+ [2,"Tune up, capo on the 1st fret."],
+ [4,"One-minute changes on whichever pair is slowest."],
+ [9,"The verse loops G, Em, C, D in 6/8. Follow a chord sheet slowly, strummed or fingerpicked."],
+ [4,"Play along with the recording."]],
+ k:"Verse and chorus along with the recording."},
+
+/* MONTH 6 */
+{w:23, t:"Song: Zombie", o:"Play Zombie with a quiet verse and a loud chorus.", c:["Em","C","G","D"], p:"folk", song:"zom", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes: Em to C, then G to D."],
+ [8,"The whole song loops Em, C, G, D. Play the verse quietly and hit the chorus hard, using your dynamics from week 12."],
+ [4,"Play along with the recording."]],
+ k:"The whole song with the recording, with a clear quiet-to-loud change."},
+{w:23, t:"Song: Wagon Wheel", o:"Play Wagon Wheel at full speed with the recording.", c:["G","D","Em","C"], p:"folk", song:"wag", s:[
+ [2,"Tune up."],
+ [4,"One-minute changes. Aim for your best scores yet."],
+ [8,"The loop is G, D, Em, C, then G, D, C, C. It’s quicker than anything so far, so start comfortable and lift the tempo."],
+ [4,"Play along with the recording. Use the capo if your chords don’t match it."]],
+ k:"The whole song at recording speed."},
+
+{w:24, t:"Strum and sing", o:"Keep strumming while you sing or hum.", c:["G","C","D"], s:[
+ [2,"Tune up."],
+ [5,"Strum G, C, D, G on autopilot with simple downstrokes. Now hum along, anything at all."],
+ [8,"Pick your easiest song. Speak the words in rhythm while you strum, then sing them. Drop to downstrokes if the strum falls apart."],
+ [3,"One verse and chorus straight through."]],
+ k:"You sing or hum a verse and chorus while your strumming keeps going.",
+ tip:"Not a singer? Humming counts. The skill is keeping your hands independent of your attention."},
+{w:24, t:"Never stop", o:"Recover from mistakes without stopping the song.", c:[], s:[
+ [2,"Tune up."],
+ [6,"Play along with a recording and deliberately miss a change, then rejoin on the next bar instead of stopping. Repeat until recovering feels normal."],
+ [8,"Play three songs along with recordings. One rule: you’re not allowed to stop."],
+ [2,"Note which song felt most solid. It opens your set."]],
+ k:"Three songs with recordings, recovering from every mistake without stopping."},
+
+{w:25, t:"Build your set", o:"Choose three songs and write a cheat sheet you can play from.", c:[], s:[
+ [2,"Tune up."],
+ [5,"Pick the three songs you enjoy most. Write one line for each: capo position, strum, chord loop. For example: capo 2, folk pattern, G Em C D."],
+ [10,"Play each song once and mark its weak spot. Spend the remaining time on just those spots."],
+ [2,"Order the set, starting with your most confident song."]],
+ k:"A three-song set list and a cheat sheet you could play from."},
+{w:25, t:"Run the set", o:"Play your whole set end to end without stopping mid-song.", c:[], s:[
+ [2,"Tune up."],
+ [14,"Play all three songs back to back as if someone is listening. Short pause between songs, capo changes included."],
+ [3,"Note one thing to tidy up in each song."]],
+ k:"The whole set end to end without stopping mid-song."},
+
+{w:26, t:"Record and review", o:"Record your set and fix its single biggest issue.", c:[], s:[
+ [2,"Tune up."],
+ [8,"Record your set on your phone, video or voice memo."],
+ [6,"Listen back. Is the tempo steady? Any buzzing chords? Gaps at changes? Pick the one biggest issue and drill it."],
+ [2,"Re-record your weakest song."]],
+ k:"A recording you’re happy to keep."},
+{w:26, t:"Perform", o:"Play your three-song set for someone.", c:[], s:[
+ [2,"Tune up."],
+ [3,"Warm up with one-minute changes on your hardest pair."],
+ [12,"Play your set for someone: family, a friend, a video call. Or record a final take to keep."],
+ [3,"Look back at lesson 3. Six months ago, one E minor chord took everything you had."]],
+ k:"You’ve played three popular songs for an audience. Programme complete."}
+];
+LESSONS.forEach((l,i)=>{ l.id=i+1; l.mins=l.s.reduce((a,b)=>a+b[0],0); });
+const WEEKS = 26;
+
+/* ---------------- STATE ---------------- */
+const KEY="firstFrets.v1";
+let state = {done:{}, log:[]};
+try{ const raw=localStorage.getItem(KEY); if(raw){ const p=JSON.parse(raw); state.done=p.done||{}; state.log=Array.isArray(p.log)?p.log:[]; } }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const monthOf = w => MONTHS.find(m => w>=m.from && w<=m.to);
+const lessonsInWeek = w => LESSONS.filter(l => l.w===w);
+function nextLesson(){ return LESSONS.find(l => !state.done[l.id]) || null; }
+function currentWeek(){ const n=nextLesson(); return n ? n.w : WEEKS; }
+
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove("on"),1800); }
+
+/* week of year helpers for practice log (Monday-start weeks, local time) */
+function dayKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function mondayOf(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); const wd=(x.getDay()+6)%7; x.setDate(x.getDate()-wd); return x; }
+function sessionsThisWeek(){ const m=mondayOf(new Date()).getTime(); return state.log.filter(k=>{ const [y,mo,da]=k.split("-").map(Number); return new Date(y,mo-1,da).getTime()>=m; }).length; }
+function logSession(){ state.log.push(dayKey(new Date())); if(state.log.length>400) state.log=state.log.slice(-400); save(); renderToday(); }
+
+/* ---------------- SVG BUILDERS ---------------- */
+function chordSVG(ch){
+  const L=15, S=17, T=30, FH=24, NF=4;
+  let g=`<svg viewBox="0 0 115 ${T+FH*NF+8}" role="img" aria-label="${esc(ch.name)} chord diagram">`;
+  // nut
+  g+=`<rect x="${L-1}" y="${T-4}" width="${S*5+2}" height="4.5" rx="1" fill="var(--ink)"/>`;
+  for(let i=1;i<=NF;i++) g+=`<line x1="${L}" x2="${L+S*5}" y1="${T+FH*i}" y2="${T+FH*i}" stroke="var(--muted)" stroke-width="1.2"/>`;
+  for(let s=0;s<6;s++) g+=`<line x1="${L+S*s}" x2="${L+S*s}" y1="${T}" y2="${T+FH*NF}" stroke="var(--muted)" stroke-width="${1.6-s*0.16}"/>`;
+  if(ch.barre){ const b=ch.barre; g+=`<rect x="${L+S*b.from-7}" y="${T+FH*(b.fret-0.5)-7}" width="${S*(b.to-b.from)+14}" height="14.4" rx="7.2" fill="var(--ink)"/>`; }
+  ch.f.forEach((f,s)=>{
+    const x=L+S*s;
+    if(f<0) g+=`<text x="${x}" y="${T-10}" text-anchor="middle" font-size="11" fill="var(--muted)" font-family="system-ui">×</text>`;
+    else if(f===0) g+=`<circle cx="${x}" cy="${T-14}" r="3.6" fill="none" stroke="var(--muted)" stroke-width="1.3"/>`;
+    else {
+      const y=T+FH*(f-0.5);
+      const inBarre = ch.barre && f===ch.barre.fret && s>=ch.barre.from && s<=ch.barre.to;
+      if(!inBarre) g+=`<circle cx="${x}" cy="${y}" r="7.2" fill="var(--ink)"/>`;
+      if(!inBarre || s===ch.barre.from) g+=`<text x="${inBarre? (L+S*(ch.barre.from+ch.barre.to)/2):x}" y="${y+3.6}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--paper)" font-family="system-ui">${ch.fi[s]||""}</text>`;
+    }
+  });
+  return g+`</svg>`;
+}
+function chordCard(id){
+  const ch=CHORDS[id]; if(!ch) return "";
+  return `<div class="chord"><div class="nm">${esc(ch.name)}</div><div class="sub">${esc(ch.sub||"")}</div>${chordSVG(ch)}</div>`;
+}
+function strumHTML(key){
+  const p=PATTERNS[key]; if(!p) return "";
+  const cells=[...p.s].map((st,i)=>{
+    const arrow = st==="D"?"↓": st==="U"?"↑":"·";
+    const cls = st==="-"?"ghost": (i===0 || (key==="six" && i===3))?"accent":"";
+    return `<div class="${cls}"><b>${arrow}</b><span>${p.c[i]}</span></div>`;
+  }).join("");
+  return `<h3 style="margin-top:22px">Strum</h3><p class="small muted" style="margin:2px 0 0">${esc(p.name)}</p><div class="strum">${cells}</div>`;
+}
+
+function neckSVG(){
+  const W=980, H=128, x0=24, x1=W-6;
+  const k=1-Math.pow(2,-WEEKS/16);
+  const pos=i=> x0 + (x1-x0)*(1-Math.pow(2,-i/16))/k;
+  const top=16, bot=92, cur=currentWeek(), allDone=!nextLesson();
+  let g=`<svg class="neck" viewBox="0 0 ${W} ${H}" role="img" aria-label="Progress across 26 weeks">`;
+  g+=`<rect x="${x0-4}" y="${top}" width="${x1-x0+10}" height="${bot-top}" rx="6" fill="var(--wood)"/>`;
+  // week fills
+  for(let w=1;w<=WEEKS;w++){
+    const ls=lessonsInWeek(w), d=ls.filter(l=>state.done[l.id]).length;
+    if(d>0) g+=`<rect x="${pos(w-1)}" y="${top}" width="${pos(w)-pos(w-1)}" height="${bot-top}" fill="var(--brass)" opacity="${d===ls.length?0.62:0.28}"/>`;
+  }
+  // inlays
+  const inl=[3,5,7,9,15,17,19,21], dbl=[12,24], cy=(top+bot)/2;
+  inl.forEach(w=>{ const cx=(pos(w-1)+pos(w))/2; g+=`<circle cx="${cx}" cy="${cy}" r="5" fill="var(--pearl)" opacity=".9"/>`; });
+  dbl.forEach(w=>{ const cx=(pos(w-1)+pos(w))/2; g+=`<circle cx="${cx}" cy="${cy-16}" r="4.5" fill="var(--pearl)" opacity=".9"/><circle cx="${cx}" cy="${cy+16}" r="4.5" fill="var(--pearl)" opacity=".9"/>`; });
+  // frets
+  for(let i=1;i<=WEEKS;i++) g+=`<line x1="${pos(i)}" x2="${pos(i)}" y1="${top}" y2="${bot}" stroke="#C9A55A" stroke-width="2"/>`;
+  // nut
+  g+=`<rect x="${x0-6}" y="${top-2}" width="7" height="${bot-top+4}" rx="2" fill="var(--pearl)"/>`;
+  // strings
+  for(let s=0;s<6;s++){ const y=top+7+s*((bot-top-14)/5); g+=`<line x1="${x0-6}" x2="${x1+4}" y1="${y}" y2="${y}" stroke="#D8D2C2" stroke-width="${2.4-s*0.32}" opacity=".85"/>`; }
+  // current marker
+  if(!allDone){ const cx=(pos(cur-1)+pos(cur))/2; g+=`<path d="M${cx-7} ${top-12} L${cx+7} ${top-12} L${cx} ${top-3} Z" fill="var(--brass)"/>`; }
+  // month labels
+  MONTHS.forEach(m=>{ const a=pos(m.from-1), b=pos(m.to); g+=`<line x1="${a+2}" x2="${b-2}" y1="${bot+10}" y2="${bot+10}" stroke="var(--line)" stroke-width="2"/><text x="${(a+b)/2}" y="${bot+28}" text-anchor="middle" font-size="13" font-weight="600" fill="var(--muted)" font-family="system-ui">Month ${m.n}</text>`; });
+  // tap targets
+  for(let w=1;w<=WEEKS;w++) g+=`<rect class="cell" data-act="week" data-v="${w}" x="${pos(w-1)}" y="0" width="${pos(w)-pos(w-1)}" height="${bot}" fill="transparent"><title>Week ${w}</title></rect>`;
+  return {svg:g+`</svg>`, x:(pos(cur-1)+pos(cur))/2};
+}
+
+/* ---------------- RENDER ---------------- */
+function renderToday(){
+  const n=neckSVG(); const wrap=$("#neckWrap"); wrap.innerHTML=n.svg;
+  const svgW=980, scale=1; requestAnimationFrame(()=>{ wrap.scrollLeft=Math.max(0, n.x*scale - wrap.clientWidth/2); });
+  const doneCount=Object.keys(state.done).filter(k=>state.done[k]).length;
+  const nl=nextLesson();
+  const cw=currentWeek(), m=monthOf(cw);
+  $("#neckCaption").textContent = nl ? `Week ${cw} of 26, month ${m.n}: ${m.name}. ${doneCount} of 52 lessons done.` : "All 26 weeks complete.";
+  if(nl){
+    $("#nextCard").innerHTML = `<div class="next"><div class="where">Up next: lesson ${nl.id}, week ${nl.w}, ${nl.mins} minutes</div>
+      <div class="title">${esc(nl.t)}</div><div class="outcome">${esc(nl.o)}</div>
+      <div class="row"><button class="btn brass" data-act="open" data-v="${nl.id}">Open lesson</button></div></div>`;
+  } else {
+    $("#nextCard").innerHTML = `<div class="next"><div class="title">Programme complete</div><div class="outcome">You went from zero to a three-song set. Keep it alive: play your set weekly and add a new song from the Songs tab each month.</div></div>`;
+  }
+  const c=sessionsThisWeek();
+  $("#weekDots").innerHTML=[0,1,2,3].map(i=>`<span class="${i<c?"on":""}"></span>`).join("");
+  $("#weekTxt").textContent = c===0 ? "No sessions yet this week. Aim for 2–4." : c===1 ? "1 session this week. One more hits the minimum." : `${c} sessions this week.` + (c>=4?" That’s the full four.":"");
+  $("#bonusTxt").textContent = (m||MONTHS[5]).bonus;
+}
+
+function renderPlan(){
+  const cw=currentWeek();
+  $("#planList").innerHTML = MONTHS.map(m=>{
+    let h=`<div class="month"><div class="month-head"><span class="n">${m.n}</span><h2 style="margin:0">${esc(m.name)}</h2></div><p class="month-goal">${esc(m.goal)}</p>`;
+    for(let w=m.from; w<=m.to; w++){
+      h+=`<div class="week${w===cw && nextLesson()?" current":""}" id="week-${w}"><div class="week-label">Week ${w}${w===cw && nextLesson()?", you are here":""}</div>`;
+      lessonsInWeek(w).forEach(l=>{
+        h+=`<button class="lrow${state.done[l.id]?" done":""}" data-act="open" data-v="${l.id}">
+          <span class="lnum">${l.id}</span>
+          <span class="lt"><b>${esc(l.t)}</b><span>${esc(l.o)}</span></span>
+          <span class="tick"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>`;
+      });
+      h+=`</div>`;
+    }
+    return h+`<p class="bonus">${esc(m.bonus)}</p></div>`;
+  }).join("");
+}
+
+function renderChords(){
+  const ids=Object.keys(CHORDS).sort((a,b)=>CHORDS[a].l-CHORDS[b].l);
+  $("#chordGrid").innerHTML = ids.map(id=>{
+    const ch=CHORDS[id];
+    return `<div class="chord"><div class="nm">${esc(ch.name)}</div><div class="sub">${esc(ch.sub||"")}</div>${chordSVG(ch)}
+      <button class="linkbtn" data-act="open" data-v="${ch.l}" style="margin-top:4px">Lesson ${ch.l}</button></div>`;
+  }).join("");
+}
+
+function renderSongs(){
+  $("#songList").innerHTML = SONGS.map(s=>{
+    const ready = !!state.done[s.l-1] || !!state.done[s.l] || s.l===1;
+    const q=encodeURIComponent(s.name+" "+s.by.split(" / ")[0]+" chords");
+    return `<div class="song"><div class="nm">${esc(s.name)}</div><div class="by">${esc(s.by)}</div>
+      <div class="chips">${s.c.map(c=>`<span class="chip">${esc(CHORDS[c]?CHORDS[c].name:c)}</span>`).join("")}</div>
+      <div class="meta">${s.capo?`Capo ${s.capo}. `:"No capo. "}${esc(s.strum)}.${s.note?" "+esc(s.note):""}</div>
+      <div class="meta">${ready?`<span class="ready">Ready to learn.</span> `:""}Taught in lesson ${s.l}, week ${LESSONS[s.l-1].w}.</div>
+      <div class="links"><button class="linkbtn" data-act="open" data-v="${s.l}">Open lesson</button><a href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">Find chords</a></div></div>`;
+  }).join("");
+}
+
+/* ---------------- LESSON SHEET ---------------- */
+let openId=null;
+function openLesson(id){
+  const l=LESSONS[id-1]; if(!l) return; openId=id;
+  const m=monthOf(l.w);
+  $("#sheetPos").textContent=`Lesson ${l.id} of 52`;
+  const chords = l.c.length ? `<h3 style="margin-top:22px">Chords</h3><div class="chord-row">${l.c.map(chordCard).join("")}</div>` : "";
+  const song = l.song ? (()=>{ const s=SONGS.find(x=>x.id===l.song); return `<p class="tip">Song: <b>${esc(s.name)}</b> by ${esc(s.by)}${s.capo?`, capo ${s.capo}`:""}.</p>`; })() : "";
+  $("#sheetBody").innerHTML = `
+    <div class="small muted">Week ${l.w}, month ${m.n}: ${esc(m.name)}. About ${l.mins} minutes.</div>
+    <h1 style="margin-top:6px">${esc(l.t)}</h1>
+    <div class="by-end">By the end of this session you can:</div>
+    <p class="big-out">${esc(l.o)}</p>
+    ${song}
+    ${chords}
+    ${l.p?strumHTML(l.p):""}
+    <h3 style="margin-top:22px">Session plan</h3>
+    <ol class="steps" id="steps">${l.s.map((s,i)=>`<li data-i="${i}"><span class="m">${s[0]} min</span><span>${esc(s[1])}</span></li>`).join("")}</ol>
+    <div class="check"><div class="h">You’ve got it when</div><div class="t">${esc(l.k)}</div></div>
+    ${l.tip?`<p class="tip">${esc(l.tip)}</p>`:""}
+    <div class="done-banner" id="doneBanner"><b>Session finished.</b> Hit the check above? Mark the lesson complete. If not, repeat it next session; that’s how it’s meant to work.</div>
+    <div class="sheet-actions">
+      <button class="btn" data-act="tstart">Start session timer</button>
+      <button class="btn ${state.done[id]?"alt":"brass"}" data-act="toggle" data-v="${id}">${state.done[id]?"Completed. Undo":"Mark complete"}</button>
+    </div>
+    <div class="prevnext">
+      <button data-act="open" data-v="${id-1}" ${id<=1?"disabled style=\"visibility:hidden\"":""}>Previous lesson</button>
+      <button data-act="open" data-v="${id+1}" ${id>=52?"disabled style=\"visibility:hidden\"":""}>Next lesson</button>
+    </div>`;
+  const sh=$("#sheet"); sh.classList.add("open"); sh.scrollTop=0;
+  document.body.style.overflow="hidden";
+  if(timer && timer.id===id) paintTimer();
+}
+function closeSheet(){ $("#sheet").classList.remove("open"); document.body.style.overflow=""; openId=null; if(timer) stopTimer(); }
+
+function toggleDone(id){
+  state.done[id]=!state.done[id]; if(!state.done[id]) delete state.done[id]; save();
+  renderAll();
+  if(openId===id) openLesson(id);
+  toast(state.done[id]?"Lesson completed":"Marked as not done");
+}
+
+/* ---------------- AUDIO ---------------- */
+let actx=null;
+function ctx(){ if(!actx){ const C=window.AudioContext||window.webkitAudioContext; actx=new C(); } if(actx.state==="suspended") actx.resume(); return actx; }
+function setSession(type){ try{ if(navigator.audioSession) navigator.audioSession.type=type; }catch(e){} }
+function beep(freq=880, dur=0.12, vol=0.25, when=0){
+  const c=ctx(), t=when||c.currentTime, o=c.createOscillator(), g=c.createGain();
+  o.type="sine"; o.frequency.value=freq; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t+dur+0.02);
+}
+function chime(){ const c=ctx(), t=c.currentTime; beep(660,0.35,0.3,t); beep(990,0.5,0.25,t+0.18); }
+function pluck(freq){
+  setSession("playback");
+  const c=ctx(), t=c.currentTime, out=c.createGain();
+  out.gain.setValueAtTime(0.0001,t); out.gain.exponentialRampToValueAtTime(0.45,t+0.01); out.gain.exponentialRampToValueAtTime(0.0001,t+2.6);
+  const f=c.createBiquadFilter(); f.type="lowpass"; f.frequency.setValueAtTime(freq*8,t); f.frequency.exponentialRampToValueAtTime(freq*2,t+1.5);
+  [[1,"triangle",1],[2,"sine",0.35],[3,"sine",0.15]].forEach(([h,type,v])=>{ const o=c.createOscillator(), g=c.createGain(); o.type=type; o.frequency.value=freq*h; g.gain.value=v; o.connect(g).connect(f); o.start(t); o.stop(t+2.7); });
+  f.connect(out).connect(c.destination);
+}
+
+/* wake lock */
+let wake=null;
+async function keepAwake(on){
+  try{
+    if(on && "wakeLock" in navigator && !wake){ wake=await navigator.wakeLock.request("screen"); wake.addEventListener("release",()=>{wake=null;}); }
+    if(!on && wake){ await wake.release(); wake=null; }
+  }catch(e){}
+}
+
+/* ---------------- SESSION TIMER ---------------- */
+let timer=null, timerInt=null;
+function startTimer(){
+  const l=LESSONS[openId-1]; if(!l) return;
+  setSession("playback"); ctx();
+  timer={id:l.id, step:0, endAt:Date.now()+l.s[0][0]*60000, paused:false, left:0};
+  $("#doneBanner") && $("#doneBanner").classList.remove("on");
+  clearInterval(timerInt); timerInt=setInterval(tick,250);
+  $("#timerbar").classList.add("on"); keepAwake(true); beep(880,0.15,0.2); paintTimer();
+}
+function tick(){
+  if(!timer || timer.paused) return;
+  if(Date.now()>=timer.endAt) advance(); else paintTimer();
+}
+function advance(){
+  const l=LESSONS[timer.id-1];
+  timer.step++;
+  if(timer.step>=l.s.length){ finishTimer(); return; }
+  chime(); timer.endAt=Date.now()+l.s[timer.step][0]*60000; paintTimer();
+}
+function finishTimer(){
+  chime(); setTimeout(chime,700);
+  logSession();
+  const id=timer.id; stopTimer();
+  if(openId===id){ const b=$("#doneBanner"); if(b){ b.classList.add("on"); b.scrollIntoView({block:"center",behavior:"smooth"}); } }
+}
+function stopTimer(){
+  clearInterval(timerInt); timer=null; $("#timerbar").classList.remove("on"); keepAwake(false);
+  document.querySelectorAll("#steps li").forEach(li=>li.classList.remove("active","past"));
+}
+function paintTimer(){
+  if(!timer) return;
+  const l=LESSONS[timer.id-1];
+  const ms = timer.paused ? timer.left : Math.max(0,timer.endAt-Date.now());
+  const s=Math.ceil(ms/1000);
+  $("#tbTime").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+  $("#tbStep").textContent=`Step ${timer.step+1} of ${l.s.length}`;
+  $("#tbPause").textContent=timer.paused?"Resume":"Pause";
+  document.querySelectorAll("#steps li").forEach(li=>{ const i=+li.dataset.i; li.classList.toggle("active",i===timer.step); li.classList.toggle("past",i<timer.step); });
+  const a=document.querySelector("#steps li.active");
+  if(a && paintTimer.last!==timer.step){ paintTimer.last=timer.step; a.scrollIntoView({block:"center",behavior:"smooth"}); }
+}
+function pauseTimer(){
+  if(!timer) return;
+  if(timer.paused){ timer.endAt=Date.now()+timer.left; timer.paused=false; }
+  else { timer.left=Math.max(0,timer.endAt-Date.now()); timer.paused=true; }
+  paintTimer();
+}
+
+/* ---------------- TUNER ---------------- */
+const STRINGS=[{n:"E",o:"2",f:82.41},{n:"A",o:"2",f:110.00},{n:"D",o:"3",f:146.83},{n:"G",o:"3",f:196.00},{n:"B",o:"3",f:246.94},{n:"E",o:"4",f:329.63}];
+$("#stringBtns").innerHTML=STRINGS.map((s,i)=>`<button data-act="pluck" data-v="${i}" id="sb${i}"><b>${s.n}</b><span>${i===0?"thick":i===5?"thin":"&nbsp;"}</span></button>`).join("");
+let tuner=null;
+async function toggleTuner(){
+  if(tuner){ stopTuner(); return; }
+  try{
+    setSession("play-and-record");
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const c=ctx(); const src=c.createMediaStreamSource(stream); const an=c.createAnalyser(); an.fftSize=2048; src.connect(an);
+    tuner={stream,src,an,buf:new Float32Array(an.fftSize),hist:[],timer:setInterval(readPitch,70)};
+    $("#tunerBtn").textContent="Stop tuner"; $("#tMsg").textContent="Pluck a string"; keepAwake(true);
+  }catch(e){ $("#tMsg").textContent="Microphone blocked. Allow it in Settings, or tune by ear below."; }
+}
+function stopTuner(){
+  if(!tuner) return; clearInterval(tuner.timer); tuner.stream.getTracks().forEach(t=>t.stop()); try{tuner.src.disconnect();}catch(e){}
+  tuner=null; $("#tunerBtn").textContent="Start tuner"; $("#tMsg").textContent="Tap start to listen"; $("#tNote").textContent="–";
+  $("#needle").style.left="50%"; $("#gauge").classList.remove("in"); document.querySelectorAll(".strings button").forEach(b=>b.classList.remove("hit"));
+  setSession("playback"); keepAwake(false);
+}
+function autoCorrelate(buf, sr){
+  let size=buf.length, rms=0;
+  for(let i=0;i<size;i++) rms+=buf[i]*buf[i];
+  rms=Math.sqrt(rms/size); if(rms<0.008) return -1;
+  // limit search to guitar range: ~70 Hz to ~400 Hz
+  const minLag=Math.floor(sr/420), maxLag=Math.min(Math.floor(sr/70), size-1);
+  const n=size-maxLag;
+  let best=-1, bestLag=-1; const corr=new Float32Array(maxLag+2);
+  for(let lag=minLag; lag<=maxLag; lag++){
+    let s=0; for(let i=0;i<n;i++) s+=buf[i]*buf[i+lag];
+    corr[lag]=s; if(s>best){best=s; bestLag=lag;}
+  }
+  if(bestLag<0) return -1;
+  // prefer the shortest lag with a strong peak (avoids octave-down errors)
+  for(let lag=minLag+1; lag<bestLag; lag++){
+    if(corr[lag]>corr[lag-1] && corr[lag]>=corr[lag+1] && corr[lag]>0.9*best){ bestLag=lag; break; }
+  }
+  const x1=corr[bestLag-1]||0, x2=corr[bestLag], x3=corr[bestLag+1]||0, a=(x1+x3-2*x2)/2, b=(x3-x1)/2;
+  const shift = a ? -b/(2*a) : 0;
+  return sr/(bestLag+shift);
+}
+function readPitch(){
+  if(!tuner) return;
+  tuner.an.getFloatTimeDomainData(tuner.buf);
+  const f=autoCorrelate(tuner.buf, actx.sampleRate);
+  if(f<0){ return; }
+  tuner.hist.push(f); if(tuner.hist.length>5) tuner.hist.shift();
+  const sorted=[...tuner.hist].sort((a,b)=>a-b), med=sorted[Math.floor(sorted.length/2)];
+  let bi=0, bc=1e9;
+  STRINGS.forEach((s,i)=>{ const c=1200*Math.log2(med/s.f); if(Math.abs(c)<Math.abs(bc)){bc=c;bi=i;} });
+  const cents=Math.max(-50,Math.min(50,bc));
+  $("#tNote").textContent=STRINGS[bi].n+(bi===0?" (thick)":bi===5?" (thin)":"");
+  document.querySelectorAll(".strings button").forEach((b,i)=>b.classList.toggle("hit",i===bi));
+  const inTune=Math.abs(bc)<=5;
+  $("#gauge").classList.toggle("in",inTune);
+  $("#needle").style.left=(50+cents)+"%";
+  $("#tMsg").textContent = Math.abs(bc)>60 ? "Way off: check which string" : inTune ? "In tune" : bc<0 ? "Too low: tighten" : "Too high: loosen";
+}
+
+/* ---------------- METRONOME ---------------- */
+let bpm=60, bpb=4, metro=null;
+function drawBeats(lit=-1){ $("#beatDots").innerHTML=Array.from({length:bpb},(_,i)=>`<span class="${i===0?"first":""}${i===lit?" lit":""}"></span>`).join(""); }
+function setBpm(v){ bpm=Math.max(40,Math.min(160,Math.round(v))); $("#bpmVal").textContent=bpm; $("#bpmSlider").value=bpm; }
+function toggleMetro(){
+  if(metro){ clearInterval(metro.int); metro.timeouts.forEach(clearTimeout); metro=null; $("#metroBtn").textContent="Start"; drawBeats(); keepAwake(false); return; }
+  setSession("playback"); const c=ctx();
+  metro={next:c.currentTime+0.08, beat:0, timeouts:[], int:null};
+  metro.int=setInterval(()=>{
+    while(metro && metro.next < c.currentTime+0.12){
+      const b=metro.beat, t=metro.next;
+      const accent = b===0 || (bpb===6 && b===3);
+      beep(b===0?1600:accent?1250:1000, 0.05, b===0?0.5:0.32, t);
+      const to=setTimeout(()=>drawBeats(b), Math.max(0,(t-c.currentTime)*1000));
+      metro.timeouts.push(to); if(metro.timeouts.length>32) metro.timeouts.shift();
+      metro.next += 60/bpm; metro.beat=(b+1)%bpb;
+    }
+  },25);
+  $("#metroBtn").textContent="Stop"; keepAwake(true);
+}
+
+/* ---------------- ONE-MINUTE TIMER ---------------- */
+let minute=null;
+function toggleMinute(){
+  if(minute){ clearInterval(minute.int); minute=null; $("#minVal").textContent="1:00"; $("#minBtn").textContent="Start 60 seconds"; return; }
+  setSession("playback"); ctx(); beep(880,0.15,0.3);
+  minute={end:Date.now()+60000};
+  minute.int=setInterval(()=>{
+    const s=Math.max(0,Math.ceil((minute.end-Date.now())/1000));
+    $("#minVal").textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+    if(s<=0){ chime(); clearInterval(minute.int); minute=null; $("#minBtn").textContent="Start 60 seconds"; setTimeout(()=>{ if(!minute) $("#minVal").textContent="1:00"; },2500); }
+  },200);
+  $("#minBtn").textContent="Cancel";
+}
+
+/* ---------------- NAV + EVENTS ---------------- */
+function showTab(v){
+  document.querySelectorAll(".view").forEach(s=>s.classList.toggle("on", s.id==="v-"+v));
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+  window.scrollTo(0,0);
+  if(v!=="tools" && tuner) stopTuner();
+}
+function renderAll(){ renderToday(); renderPlan(); renderChords(); renderSongs(); }
+
+document.addEventListener("click", e=>{
+  const t=e.target.closest("[data-act]"); if(!t) return;
+  const a=t.dataset.act, v=t.dataset.v;
+  switch(a){
+    case "tab": showTab(v); break;
+    case "open": if(+v>=1 && +v<=52){ if(timer) stopTimer(); openLesson(+v); } break;
+    case "close": closeSheet(); break;
+    case "toggle": toggleDone(+v); break;
+    case "week": showTab("plan"); setTimeout(()=>{ const el=document.getElementById("week-"+v); if(el) el.scrollIntoView({block:"start"}); },30); break;
+    case "log": logSession(); toast("Practice session logged"); break;
+    case "reset": if(confirm("Clear all ticks and practice history on this phone?")){ state={done:{},log:[]}; save(); renderAll(); toast("Progress reset"); } break;
+    case "tstart": startTimer(); break;
+    case "tpause": pauseTimer(); break;
+    case "tnext": if(timer) advance(); break;
+    case "tstop": stopTimer(); break;
+    case "pluck": pluck(STRINGS[+v].f); break;
+    case "tuner": toggleTuner(); break;
+    case "metro": toggleMetro(); break;
+    case "bpm": setBpm(bpm+(+t.dataset.d)); break;
+    case "bpb": bpb=+v; document.querySelectorAll("#bpbSeg button").forEach(b=>b.classList.toggle("on",b===t)); if(metro) metro.beat=0; drawBeats(); break;
+    case "minute": toggleMinute(); break;
+  }
+});
+$("#bpmSlider").addEventListener("input", e=>setBpm(+e.target.value));
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && openId) closeSheet(); });
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible"){ if(timer||metro) { wake=null; keepAwake(true); } renderToday(); } });
+
+drawBeats(); renderAll();
+
+if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
+</script>
+</body>
+</html>

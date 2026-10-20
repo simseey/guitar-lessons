@@ -361,7 +361,10 @@ const CHORDS = {
   Dsus4:{name:"Dsus4", f:[-1,-1,0,2,3,3], fi:[0,0,0,1,3,4], l:39},
   Em7:{name:"Em7", f:[0,2,2,0,3,3], fi:[0,1,2,0,3,4], l:40},
   A7sus4:{name:"A7sus4", f:[-1,0,2,2,3,3], fi:[0,0,1,2,3,4], l:40},
-  Dsus2:{name:"Dsus2", f:[-1,-1,0,2,3,0], fi:[0,0,0,1,3,0], l:41}
+  Dsus2:{name:"Dsus2", f:[-1,-1,0,2,3,0], fi:[0,0,0,1,3,0], l:41},
+  Asus4:{name:"Asus4", sub:"A plus pinky", f:[-1,0,2,2,3,0], fi:[0,0,1,2,4,0], l:16},
+  Gmaj7:{name:"Gmaj7", f:[3,2,0,0,0,2], fi:[2,1,0,0,0,3], l:16},
+  Bm7:{name:"Bm7", sub:"easy B minor", f:[-1,2,0,2,0,2], fi:[0,1,0,2,0,3], l:16}
 };
 
 const PATTERNS = {
@@ -375,7 +378,7 @@ const MONTHS = [
   {n:1, name:"First sounds", from:1, to:4, goal:"Hold and tune the guitar, play five chords cleanly, and strum in time.",
    bonus:"Bonus sessions this month: repeat whichever lesson felt hardest, then finish with one-minute changes. Note your scores; they should creep up every week."},
   {n:2, name:"Open chords and first songs", from:5, to:8, goal:"Learn the core open chords, strum down-ups, and play your first two songs.",
-   bonus:"Bonus sessions this month: one-minute changes on your two slowest chord pairs (5 min), then play through any song you’ve learned."},
+   bonus:"Bonus sessions this month: one-minute changes on your two slowest chord pairs (5 min), then play through any song you’ve learned. Once you’ve learned E, try Three Little Birds."},
   {n:3, name:"Rhythm", from:9, to:13, goal:"Make it sound like music: a real strum pattern, smooth changes, the capo, and three more songs.",
    bonus:"Bonus sessions this month: play your songs along with the recordings using the folk pattern. Ahead of schedule? Pick a song from the Songs tab."},
   {n:4, name:"Fingerpicking", from:14, to:17, goal:"Put the pick down: simple picking patterns, bass notes, and a fingerpicked song.",
@@ -388,7 +391,8 @@ const MONTHS = [
 
 const SONGS = [
   {id:"bmr", name:"Bad Moon Rising", by:"Creedence Clearwater Revival", c:["D","A","G"], l:14, strum:"Downstrokes"},
-  {id:"tlb", name:"Three Little Birds", by:"Bob Marley & The Wailers", c:["A","D","E"], l:16, strum:"Down-ups"},
+  {id:"asic", name:"April Sun in Cuba", by:"Dragon", c:["Asus4","A","D","Bm7","Gmaj7"], l:16, strum:"Down-ups (downstrokes only to start)", note:"The recording passes through a C#m just before the chorus. Leave it out; D straight to Bm7 works."},
+  {id:"tlb", name:"Three Little Birds", by:"Bob Marley & The Wailers", c:["A","D","E"], after:15, strum:"Down-ups", note:"The whole song is A, D and E. Try strumming only the upstrokes for a reggae feel."},
   {id:"kohd", name:"Knockin’ on Heaven’s Door", by:"Bob Dylan", c:["G","D","Am","C"], l:19, strum:"Folk pattern, or fingerpicked (lesson 33)"},
   {id:"sbm", name:"Stand By Me", by:"Ben E. King", c:["G","Em","C","D"], capo:2, l:23, strum:"Folk pattern"},
   {id:"beg", name:"Brown Eyed Girl", by:"Van Morrison", c:["G","C","D","Em"], l:25, strum:"Folk pattern"},
@@ -507,12 +511,13 @@ const LESSONS = [
  [7,"Change Am to E: the whole shape just shifts across one string. Then one-minute changes A to E."],
  [4,"Loop A, D, E, A with down-ups at 60."]],
  k:"E rings fully, and 12+ A to E changes in a minute."},
-{w:8, t:"Song: Three Little Birds", o:"Play Three Little Birds along with the recording.", c:["A","D","E"], p:"eighths", song:"tlb", s:[
+{w:8, t:"Song: April Sun in Cuba", o:"Play April Sun in Cuba along with the recording.", c:["Asus4","Gmaj7","Bm7"], p:"eighths", song:"asic", s:[
  [2,"Tune up."],
- [4,"One-minute changes: A to D, then A to E."],
- [7,"The whole song uses just A, D and E. Find a chord sheet and play it with relaxed down-ups at a slow pace."],
- [5,"Play along with the recording. Optional reggae feel: strum only the upstrokes (the “ands”)."]],
- k:"You play the whole song along with the recording."},
+ [6,"Three quick shapes. Asus4: hold A, then add your pinky on the B string 3rd fret; lift it to get A back. Gmaj7: make G, then drop your ring finger one fret on the thin E string (to the 2nd fret). Bm7: index on the A string 2nd fret, middle on the G string 2nd fret, ring on the thin E 2nd fret, with the D and B strings ringing open."],
+ [7,"Verse: rock between Asus4 and A, one bar each. That pinky flicker is the song’s hook. Into the chorus: D, then Bm7, then A. Chorus: swap between Gmaj7 and D. The song finishes back on Asus4 and A."],
+ [4,"Play along with the recording. It’s brisk, so if down-ups fall apart, use one downstroke per beat and keep the pinky flicker going."]],
+ k:"A verse and chorus with the recording, with the Asus4 to A rock in time.",
+ tip:"This one’s yours to keep coming back to. Revisit it in bonus sessions with each new strum pattern, and put it in your set in month 6."},
 
 /* MONTH 3 */
 {w:9, t:"The strum pattern you’ll use most", o:"Play the folk strum pattern for eight bars without breaking it.", c:["G"], p:"folk", s:[
@@ -893,13 +898,13 @@ function renderChords(){
 
 function renderSongs(){
   $("#songList").innerHTML = SONGS.map(s=>{
-    const ready = !!state.done[s.l-1] || !!state.done[s.l] || s.l===1;
+    const ready = s.l ? (!!state.done[s.l-1] || !!state.done[s.l]) : !!state.done[s.after];
     const q=encodeURIComponent(s.name+" "+s.by.split(" / ")[0]+" chords");
     return `<div class="song"><div class="nm">${esc(s.name)}</div><div class="by">${esc(s.by)}</div>
       <div class="chips">${s.c.map(c=>`<span class="chip">${esc(CHORDS[c]?CHORDS[c].name:c)}</span>`).join("")}</div>
       <div class="meta">${s.capo?`Capo ${s.capo}. `:"No capo. "}${esc(s.strum)}.${s.note?" "+esc(s.note):""}</div>
-      <div class="meta">${ready?`<span class="ready">Ready to learn.</span> `:""}Taught in lesson ${s.l}, week ${LESSONS[s.l-1].w}.</div>
-      <div class="links"><button class="linkbtn" data-act="open" data-v="${s.l}">Open lesson</button><a href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">Find chords</a></div></div>`;
+      <div class="meta">${ready?`<span class="ready">Ready to learn.</span> `:""}${s.l?`Taught in lesson ${s.l}, week ${LESSONS[s.l-1].w}.`:`Bonus song, ready after lesson ${s.after}.`}</div>
+      <div class="links">${s.l?`<button class="linkbtn" data-act="open" data-v="${s.l}">Open lesson</button>`:""}<a href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">Find chords</a></div></div>`;
   }).join("");
 }
 

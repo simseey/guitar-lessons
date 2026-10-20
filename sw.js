@@ -1,5 +1,5 @@
 // First Frets offline cache. Bump VERSION whenever you change any file.
-const VERSION = "first-frets-v1";
+const VERSION = "first-frets-v3";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
